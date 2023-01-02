@@ -505,7 +505,9 @@ if entry_date:
         #df_year.to_csv('df_year.csv')
         
         df_year,buy_enter_exit,sell_enter_exit,res_df = get_da(df_year,demcol)
-        res_df.to_csv(f'results/{entry_date}_{exit_date}.csv')        
+        res_df.to_csv(f'results/{entry_date}_{exit_date}.csv')
+        with open(f'results/{entry_date}_{exit_date}.csv') as f:
+            st.download_button('Download Report', f)
  
         #buy_enter_exit,sell_enter_exit = entrext(df_year) 
          
