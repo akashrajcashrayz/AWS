@@ -506,69 +506,75 @@ if entry_date:
         
         df_year,buy_enter_exit,sell_enter_exit,res_df = get_da(df_year,demcol)
         res_df.to_csv(f'results/{entry_date}_{exit_date}.csv')
+
+        st.dataframe(res_df)        
         with open(f'results/{entry_date}_{exit_date}.csv') as f:
             st.download_button('Download Report', f)
- 
-        #buy_enter_exit,sell_enter_exit = entrext(df_year) 
+            
+            if st.button('Chart'):
+                        
          
-        
-        #if chart_type == 'remove_candles':
-            #df_year = rem_candle(df_year)
+                #buy_enter_exit,sell_enter_exit = entrext(df_year) 
+                 
+                
+                #if chart_type == 'remove_candles':
+                    #df_year = rem_candle(df_year)
+                    
+                    
             
-            
-    
-        price = go.Candlestick(x=df_year['date'],
-                        open=df_year['open'],
-                        high=df_year['high'],
-                        low=df_year['low'],
-                        close=df_year['close'],name = 'price')
+                price = go.Candlestick(x=df_year['date'],
+                                open=df_year['open'],
+                                high=df_year['high'],
+                                low=df_year['low'],
+                                close=df_year['close'],name = 'price')
 
-        DEMA =  go.Scatter(x=df_year['date'],y=df_year['DEMA'],name = 'DEMA',marker_line_color="MediumPurple", marker_color="lightskyblue")
-        SAR =  go.Scatter(x=df_year['date'],y=df_year['SAR'],name = 'SAR',mode='markers',
-                           marker_line_color="midnightblue", marker_color="lightskyblue",
-                           marker_line_width=0.5, marker_size=2)                            
+                DEMA =  go.Scatter(x=df_year['date'],y=df_year['DEMA'],name = 'DEMA',marker_line_color="MediumPurple", marker_color="lightskyblue")
+                SAR =  go.Scatter(x=df_year['date'],y=df_year['SAR'],name = 'SAR',mode='markers',
+                                   marker_line_color="midnightblue", marker_color="lightskyblue",
+                                   marker_line_width=0.5, marker_size=2)                            
+         
+                clos =  go.Scatter(x=df_year['date'],y=df_year['close'],name = 'close')
+
+
+                BDEMA =  go.Scatter(x=df_year['date'] ,y=df_year['dema_line_buy'] - 15,name = 'dema_line_buy',marker_line_color="lightskyblue", marker_color="green")
+                SDEMA =  go.Scatter(x=df_year['date'] ,y=df_year['dema_line_sell'] + 15,name = 'dema_line_sell',marker_line_color="DarkSlateGrey", marker_color="red")
+         
+                                
+                fig = go.Figure(data=[DEMA,BDEMA,SDEMA,price,SAR])
+                #fig = pool.map(loop_fun, range(max(len(buy_enter_exit),len(sell_enter_exit))))
+                maxb = max(len(buy_enter_exit),len(sell_enter_exit))
+                for i in np.arange(maxb):
+                    if i < len(buy_enter_exit)  :  
+
+
+                        fig.add_vrect(x0=df_year['date'].iloc[buy_enter_exit[i][0]],x1 = df_year['date'].iloc[buy_enter_exit[i][1]], opacity=0.25, line_width=0, fillcolor="green",annotation_text=df_year['close'].iloc[buy_enter_exit[i][1]] - df_year['close'].iloc[buy_enter_exit[i][0]], annotation_position="top right",)
+                    
+                    
+                    
+                    #fig.add_vline(x=df_year['date'].iloc[i[1]], line_width=2, line_dash="dash", line_color="MediumPurple")
+                    if i < len(sell_enter_exit)  :  
+                        fig.add_vrect(x0=df_year['date'].iloc[sell_enter_exit[i][0]],x1 = df_year['date'].iloc[sell_enter_exit[i][1]], opacity=0.25, line_width=0, fillcolor="red",annotation_text=df_year['close'].iloc[sell_enter_exit[i][0]] - df_year['close'].iloc[sell_enter_exit[i][1]], annotation_position="top left",)
+                    #fig.add_vline(x=df_year['date'].iloc[i[1]], line_width=2, line_dash="dash", line_color="DarkSlateGrey")        
+                
+                
+                #fig = go.Figure(data=[DEMA,BDEMA,SDEMA,SAR,price])                       
+                                
+                                
+
+                fig.update_layout(xaxis_rangeslider_visible=False,xaxis = dict(type = "category",categoryorder = "category ascending"))
+                #fig.update_xaxes(rangebreaks=[dict(values=df_year['date'])]) # hide dates with no values
+
+
+                # Plot!
+
+                st.plotly_chart(fig,config=config, use_container_width=True)
+
+
+
+                
  
-        clos =  go.Scatter(x=df_year['date'],y=df_year['close'],name = 'close')
-
-
-        BDEMA =  go.Scatter(x=df_year['date'] ,y=df_year['dema_line_buy'] - 15,name = 'dema_line_buy',marker_line_color="lightskyblue", marker_color="green")
-        SDEMA =  go.Scatter(x=df_year['date'] ,y=df_year['dema_line_sell'] + 15,name = 'dema_line_sell',marker_line_color="DarkSlateGrey", marker_color="red")
- 
-                        
-        fig = go.Figure(data=[DEMA,BDEMA,SDEMA,price,SAR])
-        #fig = pool.map(loop_fun, range(max(len(buy_enter_exit),len(sell_enter_exit))))
-        maxb = max(len(buy_enter_exit),len(sell_enter_exit))
-        for i in np.arange(maxb):
-            if i < len(buy_enter_exit)  :  
-
-
-                fig.add_vrect(x0=df_year['date'].iloc[buy_enter_exit[i][0]],x1 = df_year['date'].iloc[buy_enter_exit[i][1]], opacity=0.25, line_width=0, fillcolor="green",annotation_text=df_year['close'].iloc[buy_enter_exit[i][1]] - df_year['close'].iloc[buy_enter_exit[i][0]], annotation_position="top right",)
-            
-            
-            
-            #fig.add_vline(x=df_year['date'].iloc[i[1]], line_width=2, line_dash="dash", line_color="MediumPurple")
-            if i < len(sell_enter_exit)  :  
-                fig.add_vrect(x0=df_year['date'].iloc[sell_enter_exit[i][0]],x1 = df_year['date'].iloc[sell_enter_exit[i][1]], opacity=0.25, line_width=0, fillcolor="red",annotation_text=df_year['close'].iloc[sell_enter_exit[i][0]] - df_year['close'].iloc[sell_enter_exit[i][1]], annotation_position="top left",)
-            #fig.add_vline(x=df_year['date'].iloc[i[1]], line_width=2, line_dash="dash", line_color="DarkSlateGrey")        
-        
-        
-        #fig = go.Figure(data=[DEMA,BDEMA,SDEMA,SAR,price])                       
-                        
-                        
-
-        fig.update_layout(xaxis_rangeslider_visible=False,xaxis = dict(type = "category",categoryorder = "category ascending"))
-        #fig.update_xaxes(rangebreaks=[dict(values=df_year['date'])]) # hide dates with no values
-
-
-        # Plot!
-
-        st.plotly_chart(fig,config=config, use_container_width=True)
-
-
-
-        
-        st.dataframe(res_df)
 
 
     else:
         st.write('Data is not available for this date')
+
