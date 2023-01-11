@@ -477,6 +477,10 @@ def get_da(df_year,demcol):
     
 
 
+def convert_df(df):
+   return df.to_csv(index=False).encode('utf-8')
+
+
 
 
 
@@ -505,11 +509,14 @@ if entry_date:
         #df_year.to_csv('df_year.csv')
         
         df_year,buy_enter_exit,sell_enter_exit,res_df = get_da(df_year,demcol)
-        res_df.to_csv(f'results/{entry_date}_{exit_date}.csv')
+        #res_df.to_csv(f'results/{entry_date}_{exit_date}.csv')
 
-        st.dataframe(res_df)        
-        with open(f'results/{entry_date}_{exit_date}.csv') as f:
-            st.download_button('Download Report', f)
+        st.dataframe(res_df)
+        csv = convert_df(res_df)
+        if True:
+            st.download_button('Download Report', csv,   f'{entry_date}_{exit_date}.csv',
+   "text/csv",key='download-csv')
+
             
             if st.button('Chart'):
                         
@@ -577,4 +584,5 @@ if entry_date:
 
     else:
         st.write('Data is not available for this date')
+
 
